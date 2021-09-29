@@ -1,0 +1,40 @@
+﻿id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Invitation to external Domain
+description: |
+  'This query shows if someone is trying to send an invitation to an external domain.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - Exfiltration
+relevantTechniques:
+  - T1567
+query: |
+  let timespn = 1h;
+  let email_domain = pack_array("@gmail.com"); //use your own company's email domain(s) within the array with comma as the delimiter.
+  WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation =~ "invitationsend" and Object_type has "Invitation"
+  | where not(Object_Name has_any (email_domain))
+  | project external_domain=Object_Name, sender=User_Email_ID, senderID=User_ID, senderIP=IP_Address;
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: User_Email_ID
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: senderIP
+  - entityType: Mail message
+    fieldMappings:
+      - identifier: Recipient
+        columnName: external_domain
+version: 1.0.0

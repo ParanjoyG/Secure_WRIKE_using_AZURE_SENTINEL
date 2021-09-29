@@ -1,0 +1,33 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Multiple Account Login from same IP
+description: |
+  'This query shows logins for multiple accounts from the same IP.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+query: |
+  let timespn = 1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation =~ "userloggedin"
+  | summarize by User_ID,IP_Address
+  | summarize User_acc = count() by IP_Address
+  | where  User_acc > 1; //this will give a list of user accounts which has been logged in from multiple IP addresses.
+
+
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_Address
+version: 1.0.0

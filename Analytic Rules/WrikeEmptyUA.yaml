@@ -1,0 +1,28 @@
+﻿id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Empty User Agent
+description: |
+  'This query shows connections to the Wrike Workspace with empty User Agent.'
+severity: Low
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1133
+query: |
+  WrikeAudit
+  | where TimeGenerated > ago(1h)
+  | where isempty(User_Agent) and Operation contains "UserLoggedIn"
+  | project IP_Address,User_Email_ID,User_Role, User_ID;
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_Address
+version: 1.0.0

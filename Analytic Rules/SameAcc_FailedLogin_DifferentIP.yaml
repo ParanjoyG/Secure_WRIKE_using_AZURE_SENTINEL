@@ -1,0 +1,34 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Same Account Fail Login from different IPs
+description: |
+  'This query shows failed logins for same accounts from different IPs.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+query: |
+  let timespn=1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation contains "UserFailLogin"
+  | summarize attempts=count() by User_ID, User_Email_ID, IP_Address
+  | summarize acc_atrisk=count() by User_ID, User_Email_ID
+  | where acc_atrisk > 1;
+
+
+
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_Address
+version: 1.0.0

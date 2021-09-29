@@ -1,0 +1,29 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Unknown IPs.
+description: |
+  'This query shows if any IPs apart from the whitelisted ones were found on your Wrike workspace and Network.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - PreAttack
+query: |
+  let Ip_WL = pack_array("127.0.0.1") //add your whitelist IP addresses.
+  let timestmp = 1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timestmp)
+  | where not( IP_Address has_any (Ip_WL))
+  | project IP_Address, Operation_perf=Operation;
+ 
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_Address
+version: 1.0.0

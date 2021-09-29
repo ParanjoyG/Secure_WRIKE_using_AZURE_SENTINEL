@@ -1,0 +1,32 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - OTP used instead of password.
+description: |
+  'This query shows if OTP has been used to login instead of password.'
+severity: Low
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAcces
+  - Reconnaissance
+relevantTechniques:
+  - T1078
+  - T1591
+query: |
+  let timespn = 1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation =~ "onetimepasswordused"
+  | project User_Email_ID, User_Agent, IP_Address;
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: User_Email_ID
+version: 1.0.0

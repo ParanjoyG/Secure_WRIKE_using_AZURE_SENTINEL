@@ -1,0 +1,32 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Multiple Failed Logins.
+description: |
+  'This query shows failed logins attempts if the number of attempts exceeds 5.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+query: |
+  let timespn = 1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation =~ "userfaillogin"
+  | summarize no_of_failed_attempts = count() by User_ID, User_Email_ID
+  | where no_of_failed_attempts > 5; //more than 5 failed tries for logging in is suspicious activity (dictionary/brute force attempts)
+
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: User_Email_ID
+version: 1.0.0

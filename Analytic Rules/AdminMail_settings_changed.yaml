@@ -1,0 +1,29 @@
+﻿id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Admin Mail settings changed
+description: |
+  'This query shows if the Wrike workspace's admin mail settings has changed.'
+severity: Low
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - Persistence
+relevantTechniques:
+  - T1098
+query: |
+  let timestmp = 1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timestmp)
+  | where Operation contains "AdminMailSettingsChanged" and SAML_Setting_OR_Approved_Domains_Changed != "OnlyOwner"
+  | project User_Email_ID, Account_Name;
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: User_Email_ID
+version: 1.0.0

@@ -1,0 +1,32 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Infected Attachment Download
+description: |
+  'This query shows if an infected attachment has been downloaded and if so when and by whom.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - Execution
+relevantTechniques:
+  - T1204.002
+query: |
+  WrikeAudit
+  | where TimeGenerated > ago(1h) and Operation has "AttemptDownloadInfectedAttach" //if data will be ingested every hour via data connector and api calls (24 of them)
+  | project Event_Date, Account_Name,Computer,Attachment_name=Object_Name, Attachment_ID=Object_ID;
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: Account_Name
+  - entityType: Malware
+    fieldMappings:
+      - identifier: Name
+        columnName: Attachment_name
+version: 1.0.0

@@ -1,0 +1,30 @@
+﻿id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - 2FA Disabled
+description: |
+  'This query shows if 2 Factor Authentication has been disabled for the Wrike Workspace.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - DefenceEvasion
+relevantTechniques:
+  - T1562
+query: |
+  let timestmp = 1h;
+  WrikeAudit
+  | where TimeGenerated > ago(timestmp)
+  | where Operation has "SecondFactorDisabled" and Non_SSO =~ "wrike 2fa"
+  | project IP_Address, User_Email_ID, User_Agent;
+
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_Address
+version: 1.0.0

@@ -1,0 +1,36 @@
+﻿id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Login to same accounts from Multiple IPs
+description: |
+  'This query shows if multiple IPs have been used to login to the same account.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1133
+query: |
+  WrikeAudit
+  | where TimeGenerated > ago(1h)
+  | where Operation =~ "userloggedin"
+  | summarize by User_ID,IP_Address, User_Email_ID
+  | summarize IP_count = count() by User_ID, User_Email_ID
+  | where  IP_count > 1 //this will give a list of user accounts which has been logged in from multiple IP addresses.
+  //| project User_ID, User_Email_ID;
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: User_Email_ID
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: senderIP
+version: 1.0.0
