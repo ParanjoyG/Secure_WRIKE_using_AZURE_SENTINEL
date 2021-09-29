@@ -1,0 +1,31 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Operations performed by rare IPs
+description: |
+  'This query shows the operations performed by rare IP addresses in your workspace.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+tactics:
+  - Reconnaissance
+relevantTechniques:
+  - T1592
+query: |
+  let timestmp = 30d;
+  let threshold = 7*1;
+  let rareIP= WrikeAudit
+  | where TimeGenerated > ago(timestmp)
+  | summarize occurence=count() by IP_Address
+  | where occurence < ['threshold'];
+  rareIP
+  | join kind=innerunique WrikeAudit on IP_Address
+  | project Event_Date, rareIP=IP_Address, op_performed=Operation, User_Email_ID
+  | sort by Event_Date asc;
+  //| limit 100 //Use this to view the top 100 operations performed by the rare IPs in your env on Wrike.
+
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: rareIP

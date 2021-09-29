@@ -1,0 +1,35 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Origin of Infected Attachments.
+description: |
+  'This query shows the origin of an infected attachment in your workspace.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+tactics:
+  - LateralMovement
+relevantTechniques:
+  - T1570
+query: |
+  let timespn=6h; //set the timespan for within which you'll hunt for the threat according to your need.
+  let Infec_attach= WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation has "AttemptDownloadInfectedAttach" and Object_type =~ "attachment"
+  | project Object_ID, victimIP=IP_Address, mal_attach=Object_Name;
+  Infec_attach
+  | join kind = innerunique WrikeAudit on Object_ID
+  //| where TimeGenerated > ago(userinput_time) //you can input your own timespan within which you want to hunt for the origin of the malicious attachment. This will reduce runtime but may not give the earliest possible origin of the malicious attachment within your log data.
+  | where Object_ID == Object_ID1 and Operation contains "AttachUploaded"
+  | project Event_Date, victimIP, ThactorIP=IP_Address, User_Email_ID, mal_attach
+  | sort by Event_Date asc;
+
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: ThactorIP
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: User_Email_ID

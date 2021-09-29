@@ -1,0 +1,26 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - rare IPs.
+description: |
+  'This query shows the rare IP addresses in your Wrike Environment.'
+severity: Informational
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+tactics:
+  - Reconnaissance
+relevantTechniques:
+  - T1592
+query: |
+  let timestmp = 30d;
+  let threshold = 7*1;
+  WrikeAudit
+  | where TimeGenerated > ago(timestmp)
+  | summarize occurence=count() by IP_Address
+  | where occurence < ['threshold'];
+
+entityMappings:
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_Address

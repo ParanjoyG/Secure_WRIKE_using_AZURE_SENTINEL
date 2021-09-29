@@ -1,0 +1,29 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - List of IPs or subnets added
+description: |
+  'This query shows the list of IPs or subnets that have been added to the accepted list of IPs/subnets.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+tactics:
+  - DefenseEvasion
+relevantTechniques:
+  - T1562
+query: |
+  let timestmp = 24h;
+  WrikeAudit
+  | where TimeGenerated > ago(timestmp)
+  | where Operation contains "ApprovedIpRangesOrSubnetsChanged"
+  | project IP_LIST = Allowed_IP, UserIP = IP_Address, TeamName= Object_Name;
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: TeamName
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: IP_LIST

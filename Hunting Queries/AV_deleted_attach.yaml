@@ -1,0 +1,32 @@
+id: 04528635-a5f1-438b-ab74-21ca7bc3aa32
+name: Wrike - Anti Virus deleted attachment.
+description: |
+  'This query shows the malicious attachments removed by Wrike from your workspace.'
+severity: High
+requiredDataConnectors:
+  - connectorId: Wrike Audit
+    dataTypes:
+      - auditLog_CL
+tactics:
+  - InitialAccess
+  - Execution
+relevantTechniques:
+  - T1078
+  - T1204.002
+query: |
+  let timespn=15d; //use this to hunt for AV deleted attachments from the last 15 days.
+  WrikeAudit
+  | where TimeGenerated > ago(timespn)
+  | where Operation contains "AntivirusDeletedInfectedAttach" and Object_type =~ "attachment"
+  | summarize count() by Attachment_name=Object_Name, email_id=User_Email_ID, IP_Address,system=Computer
+  //| where count_ > 2; //Use this to hunt for users who have tried to upload the infected attachments more than twice which is unusual behaviour. 
+
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: email_id
+  - entityType: Malware
+    fieldMappings:
+      - identifier: Name
+        columnName: Attachment_name
