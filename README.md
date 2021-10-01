@@ -16,3 +16,6 @@ One of the beautiful features of Azure Sentinel is its ability to ingest differe
 * Playbook
 * Workbook
 
+# Project Architechture
+
+![Project Architecture](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/architechture.png)
