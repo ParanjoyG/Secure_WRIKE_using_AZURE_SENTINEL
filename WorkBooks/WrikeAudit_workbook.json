@@ -1,0 +1,197 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 1,
+        "content": {
+          "json": "## Wrike Audit Workbook\n---\n\nThis workbook contains templates tp visualize various scenarios that can occur in your Wrike environment."
+        },
+        "name": "text - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "WrikeAudit\n//| where TimeGenerated > ago(1h)\n| where Operation =~ \"userfaillogin\"\n| summarize no_of_failed_attempts = count() by User_Email_ID, User_ID\n| where no_of_failed_attempts > 5; //more than 5 failed tries for logging in is suspicious activity (dictionary/brute force attempts)\n",
+          "size": 3,
+          "title": "Failed logins vs Accounts (shows the number of failed logins per account in your wrike environment.)",
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "categoricalbar",
+          "graphSettings": {
+            "type": 0,
+            "topContent": {
+              "columnMatch": "User_Email_ID",
+              "formatter": 1
+            },
+            "centerContent": {
+              "columnMatch": "no_of_failed_attempts",
+              "formatter": 1,
+              "numberFormat": {
+                "unit": 17,
+                "options": {
+                  "maximumSignificantDigits": 3,
+                  "maximumFractionDigits": 2
+                }
+              }
+            }
+          },
+          "mapSettings": {
+            "locInfo": "LatLong",
+            "sizeSettings": "no_of_failed_attempts",
+            "sizeAggregation": "Sum",
+            "legendMetric": "no_of_failed_attempts",
+            "legendAggregation": "Sum",
+            "itemColorSettings": {
+              "type": "heatmap",
+              "colorAggregation": "Sum",
+              "nodeColorField": "no_of_failed_attempts",
+              "heatmapPalette": "greenRed"
+            }
+          }
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "WrikeAudit\n//| where TimeGenerated > ago(1h)\n| where Operation =~ \"userloggedin\"\n| summarize by User_ID,IP_Address, User_Email_ID\n| summarize IP_count = count() by User_Email_ID\n| where  IP_count > 1 //this will give a list of user accounts which has been logged in from multiple IP addresses.\n//| project User_ID, User_Email_ID;",
+          "size": 0,
+          "title": "WrikeAudit Login to same account from multiple IPs (show the Logins to same account from multiple IPs.)",
+          "timeContext": {
+            "durationMs": 864000000,
+            "endTime": "2021-09-23T15:57:00.000Z"
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "barchart"
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "WrikeAudit\n//| where TimeGenerated > ago(1h)\n| where Operation =~ \"userloggedin\"\n| summarize by User_ID,IP_Address, User_Email_ID\n| summarize IP_count = count() by User_Email_ID\n| where  IP_count > 1 //this will give a list of user accounts which has been logged in from multiple IP addresses.\n//| project User_ID, User_Email_ID;",
+          "size": 3,
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "table"
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let timespn = 1h;\n  let email_domain = pack_array(\"@abc.com\"); //use your own company's email domain(s) within the array with comma as the delimiter.\n  WrikeAudit\n  //| where TimeGenerated > ago(timespn)\n  | where Operation =~ \"invitationsend\" and Object_type has \"Invitation\"\n  | where not(Object_Name has_any (email_domain))\n  | project external_domain=Object_Name, sender=User_Email_ID, senderID=User_ID, senderIP=IP_Address\n  | summarize no_of_invites=count() by external_domain",
+          "size": 3,
+          "title": "Invitation to external domain (The number of invites sent to external domains and the domain to which the higest number of invites was sent.)",
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "showExportToExcel": true,
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "areachart"
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let timespn = 1h;\n  let email_domain = pack_array(\"@gmail.com\"); //use your own company's email domain(s) within the array with comma as the delimiter.\n  WrikeAudit\n  //| where TimeGenerated > ago(timespn)\n  | where Operation =~ \"invitationsend\" and Object_type has \"Invitation\"\n  | where not(Object_Name has_any (email_domain))\n  | project external_domain=Object_Name, sender=User_Email_ID, senderID=User_ID, senderIP=IP_Address\n  | summarize by external_domain;",
+          "size": 3,
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "table"
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "WrikeAudit\n//| where TimeGenerated > ago(1h)\n| where Operation =~ \"userloggedin\"\n| summarize by User_ID,IP_Address\n| summarize User_acc = count() by IP_Address\n| where  User_acc > 1; //this will give a list of user accounts which has been logged in from multiple IP addresses.\n",
+          "size": 3,
+          "title": "Multiple Account logins from same IP.",
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "piechart"
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "WrikeAudit\n//| where TimeGenerated > ago(1h)\n| where Operation =~ \"userloggedin\"\n| summarize by User_ID,IP_Address\n| summarize User_acc = count() by IP_Address\n| where  User_acc > 1; //this will give a list of user accounts which has been logged in from multiple IP addresses.\n",
+          "size": 3,
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "table"
+        },
+        "name": "query - 3"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let timespn=1h;\nWrikeAudit\n//| where TimeGenerated > ago(timespn)\n| where Operation contains \"UserFailLogin\"\n| summarize attempts=count() by User_ID, User_Email_ID, IP_Address\n| summarize acc_atrisk=count() by User_Email_ID\n| where acc_atrisk > 1;\n",
+          "size": 3,
+          "title": "Failed login to same acount from multiple IPs (The number of IPs with failed logins for each single account which may signify a credential access tactic.",
+          "timeContext": {
+            "durationMs": 2592000000
+          },
+          "showExportToExcel": true,
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "tiles",
+          "tileSettings": {
+            "showBorder": false,
+            "titleContent": {
+              "columnMatch": "User_Email_ID",
+              "formatter": 1
+            },
+            "leftContent": {
+              "columnMatch": "acc_atrisk",
+              "formatter": 12,
+              "formatOptions": {
+                "palette": "auto"
+              },
+              "numberFormat": {
+                "unit": 17,
+                "options": {
+                  "maximumSignificantDigits": 3,
+                  "maximumFractionDigits": 2
+                }
+              }
+            }
+          }
+        },
+        "name": "query - 2"
+      }
+    ],
+    "fallbackResourceIds": [
+      "/subscriptions/8e50fd0d-240c-4ad1-8c65-cdb40d8c6300/resourcegroups/ayush/providers/microsoft.operationalinsights/workspaces/ayush"
+    ],
+    "fromTemplateId": "sentinel-UserWorkbook",
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }

@@ -1,0 +1,241 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "SendIncident_VirusTotalReport_viaMail",
+            "type": "string"
+        },
+        "NotificationEmail": {
+            "type": "String",
+            "metadata": {
+                "description": "Incident details will be sent to this email (ex. soc@xyz.com)"
+            }
+        }
+    },
+    "variables": {
+        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
+        "GmailConnectionName": "[concat('gmail-', parameters('PlayBookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('PlaybookName')]",
+                "customParameterValues": {},
+                "parameterValueType": "Alternative",
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('GmailConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('PlaybookName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "dependsOn": [
+                    "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                    "[resourceId('Microsoft.Web/connections', variables('GmailConnectionName'))]"
+                ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                "triggers": {
+                    "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                        "type": "ApiConnectionWebhook",
+                        "inputs": {
+                            "body": {
+                                "callback_url": "@{listCallbackUrl()}"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                }
+                            },
+                            "path": "/subscribe"
+                        }
+                    }
+                },
+                "actions": {
+                    "Alert_-_Get_incident": {
+                        "runAfter": {},
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                }
+                            },
+                            "method": "get",
+                            "path": "/Incidents/subscriptions/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/resourceGroups/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/workspaces/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/alerts/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}"
+                        }
+                    },
+                    "Entities_-_Get_IPs": {
+                        "runAfter": {
+                            "Alert_-_Get_incident": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "body": "@triggerBody()?['Entities']",
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/entities/ip"
+                        }
+                    },
+                    "For_each": {
+                        "foreach": "@body('Parsing_Entities')",
+                        "actions": {
+                            "Parsing_IP": {
+                                "runAfter": {},
+                                "type": "ParseJson",
+                                "inputs": {
+                                    "content": "@items('For_each')",
+                                    "schema": {
+                                        "properties": {
+                                            "$id": {
+                                                "type": "string"
+                                            },
+                                            "Address": {
+                                                "type": "string"
+                                            },
+                                            "Type": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "$id",
+                                            "Address",
+                                            "Type"
+                                        ],
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "Sending_Email": {
+                                "runAfter": {
+                                    "Parsing_IP": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ApiConnection",
+                                "inputs": {
+                                    "body": {
+                                        "Body": "<p><strong>Incident_URL</strong>--&gt; &nbsp;@{body('Alert_-_Get_incident')?['properties']?['incidentUrl']}<br>\n<br>\n<strong>Incident_Severity</strong>--&gt; @{body('Alert_-_Get_incident')?['properties']?['severity']}<br>\n<br>\n<strong>Incident_details</strong>--&gt;  @{body('Alert_-_Get_incident')?['properties']?['description']}<br>\n<br>\n<strong>Incident_Status</strong>--&gt; @{body('Alert_-_Get_incident')?['properties']?['status']}<br>\n<br>\n<strong>IPv4_Address</strong>--&gt; @{body('Parsing_IP')['Address']}<br>\n<br>\n<strong>VirusTotalReportLink_IPscanv3</strong>--&gt; https://www.virustotal.com/gui/ip-address/@{body('Parsing_IP')['Address']}<br>\n<br>\n***<br>\n<span style=\"color: rgb(184,49,47)\"><em><strong>For further investigation visit the Incident URL to solve the issue ASAP.</strong></em></span></p>",
+                                        "Importance": "High",
+                                        "Subject": "Incident Report for  @{body('Alert_-_Get_incident')?['properties']?['title']}",
+                                        "To": "[parameters('NotificationEmail')]"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "name": "@parameters('$connections')['gmail']['connectionId']"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/v2/Mail"
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "Parsing_Entities": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
+                    "Parsing_Entities": {
+                        "runAfter": {
+                            "Entities_-_Get_IPs": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@triggerBody()?['Entities']",
+                            "schema": {
+                                "items": [
+                                    {
+                                        "properties": {
+                                            "$id": {
+                                                "type": "string"
+                                            },
+                                            "Address": {
+                                                "type": "string"
+                                            },
+                                            "Type": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "$id",
+                                            "Address",
+                                            "Type"
+                                        ],
+                                        "type": "object"
+                                    }
+                                ],
+                                "type": "array"
+                            }
+                        }
+                    }
+                },
+                "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
+                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+                                 "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                }
+                            },
+                            "gmail": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('GmailConnectionName'))]",
+                                "connectionName": "[variables('GmailConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/gmail')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
