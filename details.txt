@@ -1,5 +1,0 @@
-{
-   "Wrike API Access Token": "a",
-   "Azure Sentinel Workspace ID": "b",
-   "Azure Sentinel Workspace Key": "c"
-}
