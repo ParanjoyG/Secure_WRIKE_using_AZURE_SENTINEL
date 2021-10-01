@@ -103,7 +103,7 @@
         },
         {
             "title": "",
-            "description": "**Deploy the ARM Template**\n\n1. Click the **Deploy to Azure** button below.\n2. Select the preferred **Subscription**, **Resource Group** and **Region**.\n>**NOTE :** Within the same resource group, you can't mix Windows and Linux apps in the same region. Select existing resource group without Windows apps in it or create new resource group.\n\n3. Provide your **Workspace ID**, **Workspace Key**, **Wrike Access Token** into the various fields.\n4. Mark the checkbox labeled **I agree to the terms and conditions stated above.**\n5. Click **Review+Create** to deploy."
+            "description": "**Deploy the ARM Template**\n\n1. Click the **Deploy to Azure** button below. \n\n\t[![Deploy To Azure](https://aka.ms/deploytoazurebutton)](https://aka.ms/sentinel-WrikeAudit-azuredeploy)\n2. Select the preferred **Subscription**, **Resource Group** and **Region**.\n>**NOTE :** Within the same resource group, you can't mix Windows and Linux apps in the same region. Select existing resource group without Windows apps in it or create new resource group.\n\n3. Provide your **Workspace ID**, **Workspace Key**, **Wrike Access Token** into the various fields.\n4. Mark the checkbox labeled **I agree to the terms and conditions stated above.**\n5. Click **Review+Create** to deploy."
         },
         {
             "title": "",
