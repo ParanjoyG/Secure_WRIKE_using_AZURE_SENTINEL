@@ -151,7 +151,8 @@
                         "logAnalyticsUri": "[variables('LogAnaltyicsUri')]",
                         "WorkspaceID": "[parameters('WorkspaceID')]",
                         "WorkspaceKey": "[parameters('WorkspaceKey')]",
-                        "WrikeAccessToken": "[parameters('WrikeAccessToken')]"
+                        "WrikeAccessToken": "[parameters('WrikeAccessToken')]",
+			"WEBSITE_RUN_FROM_PACKAGE": "https://aka.ms/sentinel-WrikeAudit-functionapp"
                     }
                 }
             ]
