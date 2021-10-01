@@ -1,0 +1,1 @@
+{"metadata": "[{\"key\":\"testMetaKey\",\"value\":\"testMetaValue\"}]", "customFields": "[{\"id\":\"IEAEWM3JJUACDFKH\",\"value\":\"testMetaValue\"}]", "description": "Test description", "title": "Test folder", "time": "2021-09-26T12:39:11Z"}
