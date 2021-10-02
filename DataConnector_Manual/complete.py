@@ -42,7 +42,6 @@ def show_error_message():
     print('\nIt seems you have encountered an error.\nIf you wanna change your Wrike or Azure Sentinel details, you can do so in \'config.txt\' located at '+path)
 
 
-#access_tok ="eyJ0dCI6InAiLCJhbGciOiJIUzI1NiIsInR2IjoiMSJ9.eyJkIjoie1wiYVwiOjQ5MjgzNjEsXCJpXCI6NzkzMTA4MyxcImNcIjo0NjI4NDkzLFwidVwiOjExMzg3MTc3LFwiclwiOlwiVVNcIixcInNcIjpbXCJXXCIsXCJGXCIsXCJJXCIsXCJVXCIsXCJLXCIsXCJDXCIsXCJEXCIsXCJNXCIsXCJBXCIsXCJMXCIsXCJQXCJdLFwielwiOltdLFwidFwiOjB9IiwiaWF0IjoxNjMxNzIxMjg0fQ.wX_Bqr99Gkr9mg3uxynhMTTvsyKzVXGlrbIaYwhnKBg"
 head = {
     "Authorization": "bearer {}".format(access_tok)
 }
@@ -81,9 +80,6 @@ data['time'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 file = open('info.txt', 'w')
 file.write(json.dumps(data))
 file.close()
-
-#customer_id = 'c34acc65-72d6-46fe-a7a1-aa40443e3334'
-#shared_key = "aarlQ5PRNrfCxNdFF/bBQ/19oVbgEVgkOqJZCqf8f3z0BiSvMnpZvkvMxBGegOIjzYePb+ixTWGo7vEnCsbwkw=="
 
 data = json.loads(data_audits)
 log_type = data["kind"]
