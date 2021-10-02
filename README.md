@@ -47,3 +47,10 @@ One of the beautiful features of Azure Sentinel is its ability to ingest differe
 * Provide the required inputs - WorksspaceID, Primary Key, Wrike Access Token
 * Your data will be logged in a custom log table with the name `AuditLog_CL`
 
+# Brief Overview of the solution
+
+* Parser : Used to normalise the ingested data. Save this KQL query in the log analytics worksapce as a function as `WrikeAudit`\
+* Analytic Rules : Use these to create alerts and incidents for various threat tactics which you can investigate further.\
+* Threat Hunting : Queries to proactively hunt for threat in your Wrike environment.\
+* Workbook : Visualise trends in your data.\
+* Playbook : Performing SOAR against various threats.
