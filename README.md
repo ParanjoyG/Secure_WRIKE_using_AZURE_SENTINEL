@@ -34,3 +34,16 @@ One of the beautiful features of Azure Sentinel is its ability to ingest differe
 * Then click on `Copy Token` to copy the Permanent Access Token for further use.
 ![Step 4](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/Project%20Images/Step%204.jpg)
 
+# Steps to log data into Azure Sentinel 
+
+* Create your Azure Sentinel Workspace and then obtain the WORKSPACEID and PRIMARY/SECONDARY KEY.
+* Clone the git repository in your local computer.
+`git clone https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL.git`
+* Go to the follwing path 
+`.../Secure_Wrike_using_AZURE_SENTINEL/DataConnector_Manual/`
+* Install the required dependencies
+`pip install requirements.txt`
+* Run the program `complete.py`
+* Provide the required inputs - WorksspaceID, Primary Key, Wrike Access Token
+* Your data will be logged in a custom log table with the name `AuditLog_CL`
+
