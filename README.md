@@ -18,7 +18,19 @@ One of the beautiful features of Azure Sentinel is its ability to ingest differe
 
 # Project Architechture
 
-![Project Architecture](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/architechture.png)
+![Project Architecture](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/Project%20Images/architechture.png)
 
 # Steps for generating Wrike API Key
+
+* Open your Wrike Workspace
+* Go to `Apps & Integrations` at the top-right of your workspace
+![Step 1](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/Project%20Images/Step%201.jpg)
+* Then go to `API` at the top-left of your screen.
+![Step 2](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/Project%20Images/Step%202.jpg)
+* Enter an API name and then click on `Create`.
+* Open your App and the scroll down to Create Token.
+![Step 3](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/Project%20Images/Step%203.jpg)
+* Enter your Wrike workspace password.
+* Then click on `Copy Token` to copy the Permanent Access Token for further use.
+![Step 4](https://github.com/ParanjoyG/Secure_WRIKE_using_AZURE_SENTINEL/blob/main/Project%20Images/Step%204.jpg)
 
