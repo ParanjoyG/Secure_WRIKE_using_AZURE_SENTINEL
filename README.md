@@ -42,7 +42,7 @@ One of the beautiful features of Azure Sentinel is its ability to ingest differe
 * Go to the follwing path \
 `.../Secure_Wrike_using_AZURE_SENTINEL/DataConnector_Manual/`
 * Install the required dependencies\
-`pip install requirements.txt`
+`pip install -r requirements.txt`
 * Run the program `complete.py`
 * Provide the required inputs - WorksspaceID, Primary Key, Wrike Access Token
 * Your data will be logged in a custom log table with the name `AuditLog_CL`
