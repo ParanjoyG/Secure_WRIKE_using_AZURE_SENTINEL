@@ -1,0 +1,5 @@
+* linguist-vendored
+*.py linguist-vendored=false
+*.json linguist-vendored=false
+*.txt linguist-vendored=false
+*.yaml linguist-vendores=false
