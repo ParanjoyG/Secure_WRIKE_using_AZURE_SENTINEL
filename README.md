@@ -1,6 +1,6 @@
 # Secure WRIKE using AZURE SENTINEL
 
-Wrike is a product managemnet software, widely used in various industries like Health Care, Information Technology and even Finance. It is one of the top rated PMS with excellent security handling. To bolster its security even more we have a custom solution to monitor the various activities happening within the Wrike environment using Azure Sentinel. With the variety of contents provided, we can have a bird's eye view as well as a granular control over Wrike security.
+Wrike is a product management software, widely used in various industries like Health Care, Information Technology and even Finance. It is one of the top rated PMS with excellent security handling. To bolster its security even more we have a custom solution to monitor the various activities happening within the Wrike environment using Azure Sentinel. With the variety of contents provided, we can have a bird's eye view as well as a granular control over Wrike security.
 
 # Inspiration
 
