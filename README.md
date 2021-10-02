@@ -9,7 +9,7 @@ Wrike is not just restricted to one sector instead it has users from Siemens, Wa
 # What it does?
 
 One of the beautiful features of Azure Sentinel is its ability to ingest different types of logs using multiple methods and the integration of Sentinel along with Azure Defender gives a cross-domain view within the cloud environment. Our project consists of  :
-* Log Agent
+* Data Connector
 * Analytic Rules
 * Threat Hunting Queries
 * Parser
