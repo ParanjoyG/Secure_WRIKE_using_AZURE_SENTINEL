@@ -1,6 +1,6 @@
 Wrike-SendIncident_and_VirusTotalReport_viaEmail
 
-Description- This Playbook automates the process of sending the Incident to the SOC analyst via email and also checks the associated IP address by querying Virustotal API v3 IP Scan. This way the soc team can be up-to-date on the incidents occuring in the related wrike environment. 
+Description- This Playbook automates the process of sending the Incident to the SOC analyst via email and also checks the associated IP address by querying Virustotal v3 IP Scan. This way the soc team can be up-to-date on the incidents occuring in the related wrike environment. 
 
 Prerequisites:-
 
